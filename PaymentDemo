@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NovaPay Demo</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;background:#f3f2fa;color:#211c35;
+  font-family:Arial,sans-serif
+}
+header{background:#5426c7;color:white;padding:24px 20px;
+border-radius:0 0 25px 25px}
+header h1{margin:0 0 6px;font-size:25px}
+header p{margin:0;font-size:12px;opacity:.85}
+main{padding:16px;max-width:500px;margin:auto}
+.card{background:white;border-radius:18px;padding:19px;
+margin-bottom:15px;box-shadow:0 3px 14px #20104b0c}
+.label{color:#77718a;font-size:13px}
+.balance{font-size:32px;font-weight:bold;margin:10px 0}
+button,input{font:inherit}
+button{border:0;border-radius:12px;padding:13px;
+cursor:pointer}
+.primary{background:#5426c7;color:white;width:100%;
+font-weight:bold;margin-top:10px}
+.secondary{background:#eee8ff;color:#5426c7}
+input{width:100%;padding:13px;border:1px solid #ddd7ed;
+border-radius:10px;margin-top:7px}
+h3{margin:0 0 15px}
+.row{display:flex;justify-content:space-between;
+align-items:center;gap:10px}
+.item{padding:12px 0;border-bottom:1px solid #eee;
+font-size:14px}
+.item:last-child{border:0}
+.small{font-size:12px;color:#77718a;margin-top:5px}
+.notice{background:#fff0ce;color:#6b4700;
+padding:11px;border-radius:10px;font-size:12px;
+line-height:1.5;margin-top:14px}
+nav{display:flex;gap:8px;margin-bottom:15px}
+nav button{flex:1;background:white;color:#5426c7}
+nav button.active{background:#5426c7;color:white}
+.page{display:none}
+.page.active{display:block}
+#message{font-size:14px;line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+  <h1>✦ NovaPay</h1>
+  <p>YOUR MONEY, YOUR WAY</p>
+</header>
+
+<main>
+  <div class="notice">
+    DEMO APP ONLY · No real money is transferred.
+    Balance and transactions are fictional.
+  </div>
+
+  <nav style="margin-top:16px">
+    <button class="active" onclick="showPage('home',this)">Home</button>
+    <button onclick="showPage('pay',this)">Pay demo</button>
+    <button onclick="showPage('history',this)">History</button>
+  </nav>
+
+  <section id="home" class="page active">
+    <div class="card">
+      <div class="label">Fictional demo balance</div>
+      <div class="balance" id="balance">₹2,500.00</div>
+      <div class="small">Practice money only — not a bank balance</div>
+      <button class="primary" onclick="showPage('pay',document.querySelectorAll('nav button')[1])">Try a demo payment</button>
+    </div>
+    <div class="card">
+      <h3>Quick actions</h3>
+      <div class="row">
+        <button class="secondary" onclick="showPage('pay',document.querySelectorAll('nav button')[1])">↗ Send demo</button>
+        <button class="secondary" onclick="showPage('history',document.querySelectorAll('nav button')[2])">▤ History</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Welcome to NovaPay</h3>
+      Explore the screens and try a simulated transaction.
+      <p class="small">This is an independent fictional prototype,
+      not a real payment service.</p>
+    </div>
+  </section>
+
+  <section id="pay" class="page">
+    <div class="card">
+      <h3>Send demo money</h3>
+      <label class="label" for="person">Fictional recipient name</label>
+      <input id="person" maxlength="30" placeholder="e.g. Rahul">
+      <label class="label" for="amount" style="display:block;margin-top:16px">Amount (₹)</label>
+      <input id="amount" type="number" min="1" max="2500"
+      step="1" placeholder="e.g. 100">
+      <button class="primary" onclick="payDemo()">Simulate payment</button>
+      <div id="message" style="margin-top:14px" aria-live="polite"></div>
+      <p class="small">No UPI ID, bank account, PIN or OTP is requested.</p>
+    </div>
+  </section>
+
+  <section id="history" class="page">
+    <div class="card">
+      <h3>Demo transactions</h3>
+      <div id="transactions">
+        <div class="item">
+          <div class="row"><b>Sample payment</b><b>−₹150</b></div>
+          <div class="small">Example only · Not a real transaction</div>
+        </div>
+      </div>
+      <button class="secondary" style="margin-top:15px"
+      onclick="resetDemo()">Reset demo</button>
+    </div>
+  </section>
+</main>
+
+<script>
+let balance = 35000;
+let transactions = [];
+
+function showPage(id, button) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  if (button) button.classList.add('active');
+  document.getElementById('message').textContent = '';
+}
+
+function payDemo() {
+  const person = document.getElementById('person').value.trim();
+  const amount = Number(document.getElementById('amount').value);
+  const message = document.getElementById('message');
+
+  if (!person || !Number.isFinite(amount) ||
+      !Number.isInteger(amount) || amount <= 0) {
+    message.textContent = 'Enter a fictional name and a whole-number amount.';
+    return;
+  }
+  if (amount > balance) {
+    message.textContent = 'Insufficient fictional demo balance.';
+    return;
+  }
+
+  balance -= amount;
+  transactions.unshift({person, amount, time: new Date().toLocaleTimeString()});
+  document.getElementById('balance').textContent =
+    '₹' + balance.toLocaleString('en-IN') + '.00';
+
+  message.textContent = '✓ DEMO SUCCESS — No money was transferred.';
+  document.getElementById('person').value = '';
+  document.getElementById('amount').value = '';
+  renderHistory();
+}
+
+function renderHistory() {
+  const area = document.getElementById('transactions');
+  area.innerHTML = '';
+
+  if (!transactions.length) {
+    area.textContent = 'No demo payments yet.';
+    return;
+  }
+
+  transactions.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'item';
+
+    const row = document.createElement('div');
+    row.className = 'row';
+
+    const name = document.createElement('b');
+    name.textContent = t.person;
+
+    const value = document.createElement('b');
+    value.textContent = '−₹' + t.amount.toLocaleString('en-IN');
+
+    const note = document.createElement('div');
+    note.className = 'small';
+    note.textContent = 'DEMO ONLY · ' + t.time;
+
+    row.append(name, value);
+    item.append(row, note);
+    area.appendChild(item);
+  });
+}
+
+function resetDemo() {
+  balance = 35000;
+  transactions = [];
+  document.getElementById('balance').textContent = '₹35000.00';
+  document.getElementById('message').textContent = '';
+  renderHistory();
+}
+</script>
+</body>
+</html>
