@@ -1,0 +1,426 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0b0b">
+<title>VibeTube</title>
+<style>
+:root{
+ --bg:#0b0b0b;--panel:#171717;--line:#303030;
+ --red:#ff263e;--muted:#aaa;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#fff;
+ font-family:Arial,Helvetica,sans-serif;padding-bottom:82px}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+header{height:65px;display:flex;align-items:center;justify-content:space-between;
+ padding:0 15px;position:sticky;top:0;z-index:10;background:#101010f5}
+.logo{font-size:24px;font-weight:900;letter-spacing:-1px;white-space:nowrap}
+.logo span{color:var(--red)}
+.iconbtn{border:0;background:transparent;color:white;font-size:23px;padding:8px}
+.topright{display:flex;align-items:center;gap:4px}
+main{max-width:800px;margin:auto}
+.searchbox{padding:4px 14px 12px;background:#0b0b0b}
+.searchbox input,.field{width:100%;padding:12px 16px;border-radius:25px;
+ border:1px solid #333;background:#202020;color:#fff;outline:none}
+.categories{display:flex;gap:9px;overflow-x:auto;padding:5px 14px 15px;
+ scrollbar-width:none}
+.categories button{border:0;border-radius:8px;background:#272727;color:#fff;
+ padding:10px 15px;white-space:nowrap}
+.categories button.active{background:#fff;color:#111}
+.feature{margin:0 0 18px}
+.feature-image{width:100%;aspect-ratio:16/9;position:relative;
+ background:#202020;cursor:pointer}
+.feature-image img{width:100%;height:100%;object-fit:cover}
+.duration{position:absolute;right:8px;bottom:8px;background:#000d;
+ padding:4px 6px;border-radius:4px;font-size:12px}
+.feature-info{display:flex;gap:12px;padding:12px 14px}
+.avatar{width:43px;height:43px;border-radius:50%;background:var(--red);
+ display:grid;place-items:center;flex-shrink:0;font-weight:bold;font-size:19px}
+.details{flex:1;min-width:0}
+.details h2,.details h3{font-size:15px;line-height:1.4;margin:0 0 6px}
+.muted{font-size:12px;color:var(--muted);line-height:1.6}
+.section-title{font-size:19px;margin:20px 14px 13px}
+.video-row{display:flex;gap:13px;overflow-x:auto;padding:0 14px 10px;
+ scrollbar-width:thin}
+.video-card{flex:0 0 82%;max-width:420px;cursor:pointer}
+.thumb{position:relative;aspect-ratio:16/9;background:#242424;border-radius:10px;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.card-info{display:flex;gap:10px;padding-top:10px}
+.card-info .avatar{width:36px;height:36px;font-size:15px}
+.card-info h3{font-size:14px;line-height:1.4;margin:0 0 5px}
+.shorts-row{display:flex;gap:11px;overflow-x:auto;padding:0 14px 14px}
+.short-card{position:relative;flex:0 0 43%;max-width:205px;aspect-ratio:9/14;
+ border-radius:12px;overflow:hidden;background:#252525;border:0;padding:0;color:#fff;text-align:left}
+.short-card img{width:100%;height:100%;object-fit:cover}
+.short-info{position:absolute;bottom:0;left:0;right:0;padding:35px 10px 12px;
+ background:linear-gradient(transparent,#000e);font-weight:bold;line-height:1.5}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;
+ background:#141414;border-top:1px solid #303030;display:flex;
+ justify-content:space-around;padding:8px 2px max(8px,env(safe-area-inset-bottom))}
+.nav{flex:1;min-width:0;display:flex;align-items:center;gap:4px;
+ flex-direction:column;border:0;background:transparent;color:#bbb;font-size:10px}
+.nav .symbol{font-size:23px;line-height:25px}
+.nav.active{color:var(--red)}
+.nav .plus{font-size:27px;color:#fff;background:#292929;
+ width:42px;height:32px;border-radius:12px;line-height:30px}
+#page{display:none;padding:15px;min-height:60vh}
+.panel{background:var(--panel);border:1px solid #292929;
+ border-radius:13px;padding:15px;margin:12px 0}
+.primary{background:var(--red);color:#fff;border:0;border-radius:9px;
+ padding:12px 15px;font-weight:bold}
+.secondary{background:#292929;color:white;border:0;border-radius:20px;padding:10px 13px}
+.field{border-radius:9px;margin:6px 0}
+.actionrow{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0}
+#player{width:100%;background:#000;border-radius:10px}
+#notice{position:fixed;top:75px;left:50%;transform:translateX(-50%);
+ z-index:50;background:#333;padding:12px 16px;border-radius:10px;
+ max-width:90%;box-shadow:0 4px 20px #0008}
+.hidden{display:none!important}
+.empty{padding:30px 18px;text-align:center;color:#aaa}
+@media(min-width:600px){
+ .video-card{flex-basis:48%}
+ .short-card{flex-basis:170px}
+ .feature-image{margin:0 14px;border-radius:12px;overflow:hidden}
+}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">▶ Vibe<span>Tube</span></div>
+ <div class="topright">
+  <button class="iconbtn" onclick="notify('Notifications will be added in the online version')">♧</button>
+  <button class="iconbtn" onclick="openPage('account')">●</button>
+ </div>
+</header>
+
+<div id="homeView">
+ <div class="searchbox">
+  <input id="search" placeholder="⌕  Search VibeTube..."
+   oninput="render()" aria-label="Search videos">
+ </div>
+
+ <div class="categories" id="categories">
+  <button class="active" onclick="setCategory('All',this)">All</button>
+  <button onclick="setCategory('Gaming',this)">Gaming</button>
+  <button onclick="setCategory('Roblox',this)">Roblox</button>
+  <button onclick="setCategory('Minecraft',this)">Minecraft</button>
+  <button onclick="setCategory('Music',this)">Music</button>
+  <button onclick="setCategory('Education',this)">Education</button>
+ </div>
+
+ <main>
+  <section id="featured"></section>
+
+  <h2 class="section-title">Recommended videos</h2>
+  <section id="feed" class="video-row"></section>
+
+  <h2 class="section-title">▶ Vibe Shorts</h2>
+  <section id="shorts" class="shorts-row"></section>
+
+  <div class="panel">
+   <h3>Welcome to VibeTube ❤️</h3>
+   <p class="muted">Discover videos. Find your vibe. Create your world.</p>
+  </div>
+ </main>
+</div>
+
+<section id="page"></section>
+<div id="notice" class="hidden" role="status" aria-live="polite"></div>
+
+<nav class="bottom-nav">
+ <button class="nav active" data-page="home" onclick="openPage('home')">
+  <span class="symbol">⌂</span>Home
+ </button>
+ <button class="nav" data-page="shorts" onclick="openPage('shorts')">
+  <span class="symbol">▷</span>Shorts
+ </button>
+ <button class="nav" data-page="create" onclick="openPage('create')">
+  <span class="symbol plus">+</span>Create
+ </button>
+ <button class="nav" data-page="subscriptions" onclick="openPage('subscriptions')">
+  <span class="symbol">▣</span>Subscriptions
+ </button>
+ <button class="nav" data-page="account" onclick="openPage('account')">
+  <span class="symbol">●</span>Account
+ </button>
+</nav>
+
+<script>
+const sampleVideo =
+ "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+
+const videos=[
+ {id:1,title:"Minecraft Survival: My First Day!",channel:"Craft World",
+ views:"8.4K",age:"2 days ago",cat:"Minecraft",duration:"0:30",
+ img:"photo-1607513746994-51f730a44832",
+ desc:"Starting an adventure in a brand-new world."},
+ {id:2,title:"Epic Gaming Moments 🎮",channel:"Vibe Gaming",
+ views:"12K",age:"1 day ago",cat:"Gaming",duration:"0:25",
+ img:"photo-1542751371-adc38448a05e",
+ desc:"Gaming moments and adventures."},
+ {id:3,title:"My Roblox Adventure!",channel:"Pixel Squad",
+ views:"23K",age:"3 days ago",cat:"Roblox",duration:"0:40",
+ img:"photo-1535223289827-42f1e9919769",
+ desc:"Welcome to our gaming world."},
+ {id:4,title:"Learn Something New Today",channel:"Bright Mind",
+ views:"6.2K",age:"1 week ago",cat:"Education",duration:"0:35",
+ img:"photo-1456513080510-7bf3a84b82f8",
+ desc:"Small lessons, big ideas."},
+ {id:5,title:"Beautiful World 🌄",channel:"Daily Vibes",
+ views:"45K",age:"5 days ago",cat:"Music",duration:"0:30",
+ img:"photo-1500530855697-b586d89ba3ee",
+ desc:"Relax and enjoy this beautiful view."}
+];
+
+const shortsData=[
+ {id:101,title:"Epic gaming moments 🎮",views:"8.6K views",
+ img:"photo-1542751371-adc38448a05e"},
+ {id:102,title:"Dream big ✨",views:"24K views",
+ img:"photo-1470770841072-f978cf4d019e"},
+ {id:103,title:"Study motivation 📚",views:"15K views",
+ img:"photo-1499750310107-5fef28a66643"},
+ {id:104,title:"Beautiful nature 🌿",views:"6K views",
+ img:"photo-1441974231531-c6227db76b6e"}
+];
+
+let category="All";
+let liked=new Set(JSON.parse(localStorage.getItem("vt_likes")||"[]"));
+let saved=new Set(JSON.parse(localStorage.getItem("vt_saved")||"[]"));
+let creator=localStorage.getItem("vt_creator")||"My Channel";
+let uploads=[];
+let nextId=1000;
+let currentVideo=null;
+let localUrls=[];
+
+function safe(s){
+ return String(s??"").replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+function imageUrl(id){
+ return "https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=900&q=80";
+}
+function notify(message){
+ const el=document.getElementById("notice");
+ el.textContent=message;
+ el.classList.remove("hidden");
+ clearTimeout(window.noticeTimer);
+ window.noticeTimer=setTimeout(()=>el.classList.add("hidden"),2500);
+}
+function allVideos(){return [...uploads,...videos]}
+function findVideo(id){return allVideos().find(v=>v.id===Number(id))}
+function setCategory(cat,btn){
+ category=cat;
+ document.querySelectorAll(".categories button").forEach(b=>b.classList.remove("active"));
+ btn.classList.add("active");
+ render();
+}
+function videoImage(v){return v.img?imageUrl(v.img):""}
+
+function render(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const list=allVideos().filter(v=>
+ (category==="All"||v.cat===category)&&
+ (v.title+" "+v.channel+" "+v.cat).toLowerCase().includes(q)
+ );
+ const featured=document.getElementById("featured");
+ const feed=document.getElementById("feed");
+
+ if(!q&&category==="All"){
+  featured.innerHTML=`
+   <article class="feature">
+    <div class="feature-image" onclick="playVideo(2)">
+     <img src="${imageUrl("photo-1542751371-adc38448a05e")}" alt="Featured gaming video">
+     <span class="duration">12:48</span>
+    </div>
+    <div class="feature-info">
+     <div class="avatar">V</div>
+     <div class="details">
+      <h2>Welcome to the VibeTube Gaming World 🔥</h2>
+      <div class="muted">Vibe Gaming · 12K views · 2 days ago</div>
+     </div>
+     <button class="iconbtn" onclick="notify('More options coming soon')">⋮</button>
+    </div>
+   </article>`;
+ }else{
+  featured.innerHTML="";
+ }
+ const cards=list.filter(v=>!(!q&&category==="All"&&v.id===2));
+ feed.innerHTML=cards.length?cards.map(v=>`
+  <article class="video-card" onclick="playVideo(${v.id})">
+   <div class="thumb">
+    <img src="${safe(v.poster||videoImage(v))}" alt="" loading="lazy">
+    <span class="duration">${safe(v.duration||"New")}</span>
+   </div>
+   <div class="card-info">
+    <div class="avatar">${safe(v.channel.charAt(0).toUpperCase())}</div>
+    <div class="details">
+     <h3>${safe(v.title)}</h3>
+     <div class="muted">${safe(v.channel)}<br>${safe(v.views||"0")} views · ${safe(v.age||"Just now")}</div>
+    </div>
+   </div>
+  </article>`).join(""):'<div class="empty">No videos found. Try another category or search.</div>';
+}
+function renderShorts(){
+ document.getElementById("shorts").innerHTML=shortsData.map(v=>`
+  <button class="short-card" onclick="playShort(${v.id})">
+   <img src="${imageUrl(v.img)}" alt="" loading="lazy">
+   <span class="short-info">${safe(v.title)}<br><small>${safe(v.views)}</small></span>
+  </button>`).join("");
+}
+function playVideo(id){
+ const v=findVideo(id);
+ if(!v)return notify("Video not found");
+ currentVideo=v;
+ showPlayer(v,false);
+}
+function playShort(id){
+ const v=shortsData.find(x=>x.id===id);
+ if(!v)return;
+ currentVideo={...v,title:v.title,channel:"Vibe Shorts",
+ desc:"Short video preview.",url:sampleVideo,views:v.views};
+ showPlayer(currentVideo,true);
+}
+function showPlayer(v,isShort){
+ document.getElementById("homeView").classList.add("hidden");
+ const page=document.getElementById("page");
+ page.style.display="block";
+ const source=v.url||sampleVideo;
+ page.innerHTML=`
+  <button class="secondary" onclick="openPage('home')">← Back to Home</button>
+  <div style="margin-top:15px">
+   ${isShort?'<div style="max-width:360px;margin:auto">':''}
+   <video id="player" controls playsinline preload="metadata"
+    poster="${safe(v.poster||videoImage(v))}" src="${safe(source)}"></video>
+   ${isShort?'</div>':''}
+   <h2>${safe(v.title)}</h2>
+   <div class="muted">${safe(v.channel)} · ${safe(v.views||"New")} views</div>
+   <div class="actionrow">
+    <button class="secondary" onclick="toggleLike(${v.id})">♥ ${liked.has(v.id)?"Liked":"Like"}</button>
+    <button class="secondary" onclick="toggleSave(${v.id})">${saved.has(v.id)?"✓ Saved":"▣ Save"}</button>
+    <button class="secondary" onclick="shareVideo(${v.id})">↗ Share</button>
+   </div>
+   <div class="panel">
+    <b>${safe(v.channel)}</b>
+    <p class="muted">${safe(v.desc||"Enjoy this video on VibeTube.")}</p>
+   </div>
+   <div class="panel">
+    <h3>Comments</h3>
+    <p class="muted">Comments will be shared online after we connect the backend.</p>
+    <input class="field" id="commentText" placeholder="Add a comment...">
+    <button class="primary" onclick="notify('Online comments are coming after backend setup')">Comment</button>
+   </div>
+  </div>`;
+ window.scrollTo(0,0);
+}
+function toggleLike(id){
+ if(liked.has(id))liked.delete(id);else liked.add(id);
+ localStorage.setItem("vt_likes",JSON.stringify([...liked]));
+ if(currentVideo&&currentVideo.id===id)showPlayer(currentVideo,false);
+ notify(liked.has(id)?"Video liked!":"Like removed");
+}
+function toggleSave(id){
+ if(saved.has(id))saved.delete(id);else saved.add(id);
+ localStorage.setItem("vt_saved",JSON.stringify([...saved]));
+ if(currentVideo&&currentVideo.id===id)showPlayer(currentVideo,false);
+ notify(saved.has(id)?"Video saved!":"Video removed from saved");
+}
+async function shareVideo(id){
+ const v=findVideo(id);
+ try{
+  if(navigator.share)await navigator.share({title:v.title,text:"Watch on VibeTube"});
+  else notify("Sharing is not supported in this preview.");
+ }catch(e){}
+}
+function openPage(name){
+ document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+ const home=document.getElementById("homeView");
+ const page=document.getElementById("page");
+ page.style.display="none";
+ home.classList.add("hidden");
+ if(name==="home"){
+  home.classList.remove("hidden");
+  render();window.scrollTo(0,0);return;
+ }
+ page.style.display="block";
+ if(name==="shorts"){
+  page.innerHTML='<h2>▶ Vibe Shorts</h2><p class="muted">Choose a short to preview it.</p><div class="shorts-row">'+
+  shortsData.map(v=>`<button class="short-card" onclick="playShort(${v.id})"><img src="${imageUrl(v.img)}"><span class="short-info">${safe(v.title)}</span></button>`).join("")+'</div>';
+ }
+ if(name==="create")showCreate();
+ if(name==="subscriptions"){
+  page.innerHTML='<div class="panel"><h2>Subscriptions</h2><p class="muted">Your subscribed creators will appear here after we add online accounts and subscriptions.</p></div>';
+ }
+ if(name==="account")showAccount();
+ window.scrollTo(0,0);
+}
+function showCreate(){
+ const page=document.getElementById("page");
+ page.innerHTML=`
+ <h2>＋ Create a video</h2>
+ <div class="panel">
+  <p class="muted">Select a video from your phone to preview it on this device.</p>
+  <input class="field" id="newTitle" placeholder="Video title" maxlength="100">
+  <input class="field" id="newChannel" placeholder="Channel name" value="${safe(creator)}" maxlength="40">
+  <select class="field" id="newCategory">
+   <option>Gaming</option><option>Roblox</option><option>Minecraft</option>
+   <option>Music</option><option>Education</option>
+  </select>
+  <input class="field" id="newFile" type="file" accept="video/*">
+  <button class="primary" onclick="addVideo()">Preview my video</button>
+  <p class="muted">This is a local preview, not an online upload. We will add cloud storage later.</p>
+ </div>`;
+}
+function addVideo(){
+ const title=document.getElementById("newTitle").value.trim();
+ const channel=document.getElementById("newChannel").value.trim()||creator;
+ const category=document.getElementById("newCategory").value;
+ const file=document.getElementById("newFile").files[0];
+ if(!title||!file)return notify("Enter a title and choose a video.");
+ if(!file.type.startsWith("video/"))return notify("Please select a video file.");
+ if(file.size>50*1024*1024)return notify("Choose a video under 50 MB.");
+ const url=URL.createObjectURL(file);
+ localUrls.push(url);
+ const v={id:nextId++,title,channel,cat:category,views:"0",age:"Just now",
+ duration:"Your video",url,poster:"",desc:"Video preview on VibeTube."};
+ uploads.unshift(v);
+ currentVideo=v;
+ render();
+ showPlayer(v,false);
+ notify("Your local video is ready!");
+}
+function showAccount(){
+ const page=document.getElementById("page");
+ page.style.display="block";
+ page.innerHTML=`
+  <div class="panel">
+   <div class="avatar">${safe(creator.charAt(0).toUpperCase())}</div>
+   <h2>${safe(creator)}</h2>
+   <p class="muted">Your VibeTube channel</p>
+   <input class="field" id="creatorName" placeholder="Enter your channel name" maxlength="40">
+   <button class="primary" onclick="saveCreator()">Save channel name</button>
+  </div>
+  <div class="panel"><h3>Saved videos</h3><p class="muted">${saved.size} saved video(s) on this device.</p>
+  ${[...saved].map(id=>findVideo(id)).filter(Boolean).map(v=>`<p><button class="secondary" onclick="playVideo(${v.id})">${safe(v.title)}</button></p>`).join("")||'<p class="muted">No saved videos yet.</p>'}</div>
+  <p class="muted">This is a local profile. Online accounts are a future upgrade.</p>`;
+}
+function saveCreator(){
+ const n=document.getElementById("creatorName").value.trim();
+ if(!n)return notify("Enter a channel name.");
+ creator=n.slice(0,40);
+ localStorage.setItem("vt_creator",creator);
+ notify("Channel name saved!");
+ showAccount();
+}
+document.getElementById("search").addEventListener("input",render);
+render();
+renderShorts();
+</script>
+</body>
+</html>
