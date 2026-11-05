@@ -1,0 +1,582 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#5420c8">
+<title>PayNova 2.0</title>
+
+<style>
+:root{
+  --p:#6326d9;--d:#321071;--bg:#f5f1fc;
+  --ink:#24163d;--muted:#81758f;--line:#ece5f5;
+  --green:#16834c;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,Arial,sans-serif;
+}
+button,input,select{font:inherit}
+button{cursor:pointer;touch-action:manipulation}
+header{
+  color:white;padding:23px 19px 27px;
+  background:linear-gradient(135deg,#7b37ec,#4b1bb5,#301064);
+  border-radius:0 0 28px 28px;
+  box-shadow:0 10px 28px #5020a32b;
+  animation:down .4s ease;
+}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.logo{font-size:24px;font-weight:850;letter-spacing:-.7px}
+.demo{
+  font-size:10px;padding:7px 10px;border-radius:30px;
+  background:#ffffff1c;border:1px solid #ffffff50;
+}
+.balance-label{font-size:13px;opacity:.85;margin-top:26px}
+.balance-label{font-size:13px;opacity:.85;margin-top:26px}
+.balance{font-size:35px;font-weight:850;margin-top:5px;letter-spacing:-1px}
+.disclaimer{font-size:11px;opacity:.85;margin-top:8px}
+main{max-width:560px;margin:auto;padding:16px 14px 100px}
+.notice{
+  background:#fff5d9;color:#79581c;border:1px solid #f2e4b8;
+  padding:12px;border-radius:13px;font-size:11px;
+  line-height:1.6;margin-bottom:15px;
+}
+.page{display:none}
+.page.active{display:block;animation:up .25s ease}
+.card{
+  padding:17px;background:white;border:1px solid #fff;
+  border-radius:20px;margin-bottom:15px;
+  box-shadow:0 5px 20px #38126b09;
+}
+h3{font-size:16px;margin:0 0 15px;font-weight:800}
+.actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.action{
+  background:none;border:0;border-radius:13px;padding:5px 1px;
+  color:#493269;font-size:11px;font-weight:650;
+  overflow-wrap:anywhere;
+}
+.bubble{
+  width:49px;height:49px;margin:0 auto 8px;border-radius:17px;
+  display:grid;place-items:center;font-size:23px;
+  color:var(--p);background:linear-gradient(145deg,#f1e7ff,#e5d6ff);
+  transition:transform .2s;
+}
+.action:active .bubble{transform:scale(.88)}
+.promo{
+  color:white;position:relative;overflow:hidden;
+  background:linear-gradient(125deg,#351071,#792de6);
+}
+.promo p{font-size:12px;line-height:1.7;opacity:.85}
+.promo h3{font-size:21px;line-height:1.4;margin-bottom:5px}
+.promo:after{
+  content:"✦";position:absolute;right:16px;bottom:-22px;
+  font-size:105px;opacity:.12;pointer-events:none;
+}
+.btn{
+  display:block;width:100%;padding:13px;border:0;border-radius:13px;
+  background:linear-gradient(110deg,#7735e8,#4b1cb5);
+  color:white;font-size:14px;font-weight:750;
+  box-shadow:0 5px 15px #6124c928;
+  transition:transform .15s;
+}
+.btn:active{transform:scale(.98)}
+.btn.secondary{
+  background:#f6f0ff;color:var(--p);
+  box-shadow:none;border:1px solid #e8dcfa;margin-top:9px;
+}
+label{display:block;font-size:12px;font-weight:750;color:#59476d}
+input,select{
+  display:block;width:100%;padding:12px;margin:7px 0 15px;
+  border:1px solid #e3daef;border-radius:12px;
+  background:#fcfaff;color:var(--ink);outline:none;
+}
+input:focus,select:focus{
+  border-color:#8c58e6;box-shadow:0 0 0 3px #8c58e619;
+}
+.muted{font-size:11px;line-height:1.6;color:var(--muted)}
+.tx{
+  display:flex;align-items:center;gap:10px;padding:12px 0;
+  border-bottom:1px solid var(--line);
+}
+.tx:last-child{border:0}
+.txicon{
+  flex-shrink:0;width:43px;height:43px;border-radius:15px;
+  display:grid;place-items:center;background:#eee5ff;color:var(--p);
+}
+.txinfo{flex:1;min-width:0}
+.txinfo strong{font-size:12px;display:block;overflow-wrap:anywhere}
+.txinfo small{font-size:10px;color:var(--muted);display:block;margin-top:4px}
+.txamt{font-size:12px;font-weight:800;white-space:nowrap}
+.green{color:var(--green)}
+.avatar{
+  width:76px;height:76px;border-radius:50%;object-fit:cover;
+  display:grid;place-items:center;margin:0 auto 13px;
+  background:#e9dcff;color:var(--p);font-size:32px;
+  border:3px solid white;box-shadow:0 0 0 2px #e5d6ff;
+}
+.profile-name{text-align:center;font-size:20px;font-weight:800}
+.profile-id{text-align:center;color:var(--muted);font-size:12px;margin:5px 0 20px}
+.qrwrap{text-align:center}
+#qr{margin:15px auto;display:flex;justify-content:center;min-height:20px}
+#qr canvas,#qr img{max-width:100%;height:auto!important}
+nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:5;
+  display:flex;justify-content:space-around;gap:2px;
+  padding:8px 3px calc(8px + env(safe-area-inset-bottom));
+  background:#ffffffed;backdrop-filter:blur(15px);
+  border-top:1px solid var(--line);
+}
+nav button{
+  flex:1;min-width:0;border:0;border-radius:12px;
+  background:transparent;color:#7a6a90;padding:7px 0;
+  font-size:10px;font-weight:700;
+}
+nav button span{display:block;font-size:19px;margin-bottom:3px}
+nav button.selected{background:#eee4ff;color:var(--p)}
+footer{text-align:center;color:#9487a3;font-size:10px;padding:15px}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes down{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="top">
+    <div class="logo">◈ PayNova</div>
+    <div class="demo">● DEMO MODE</div>
+  </div>
+  <div class="balance-label">Your demo wallet balance</div>
+  <div class="balance" id="balance">₹5,000.00</div>
+  <div class="disclaimer">🛡 Simulated money only · Not a bank account</div>
+</header>
+
+<main>
+  <div class="notice">
+    ⚠️ PayNova is an independent educational demo. No real payments,
+    bank connections or mobile recharges are performed.
+  </div>
+
+  <!-- HOME -->
+  <section class="page active" id="home">
+    <div class="card">
+      <h3>Quick actions</h3>
+      <div class="actions">
+        <button class="action" onclick="showPage('send')">
+          <div class="bubble">↗</div>Send
+        </button>
+        <button class="action" onclick="showPage('receive')">
+          <div class="bubble">↙</div>Receive
+        </button>
+        <button class="action" onclick="showPage('recharge')">
+          <div class="bubble">▤</div>Recharge
+        </button>
+        <button class="action" onclick="showPage('qr')">
+          <div class="bubble">▦</div>My QR
+        </button>
+      </div>
+    </div>
+
+    <div class="card promo">
+      <h3>Pay smart. Explore more.</h3>
+      <p>Discover your digital demo wallet, all in one place.</p>
+      <button class="btn" style="background:white;color:#5721b7"
+        onclick="showPage('profile')">Explore profile →</button>
+    </div>
+
+    <div class="card">
+      <h3>Wallet services</h3>
+      <button class="btn" onclick="showPage('add')">＋ Add demo money</button>
+      <button class="btn secondary" onclick="showPage('history')">
+        View all transactions
+      </button>
+    </div>
+
+    <div class="card">
+      <h3>Recent transactions</h3>
+      <div id="recent"></div>
+    </div>
+  </section>
+
+  <!-- SEND -->
+  <section class="page" id="send">
+    <div class="card">
+      <h3>↗ Send demo money</h3>
+      <label for="recipient">Recipient name</label>
+      <input id="recipient" maxlength="50" placeholder="e.g. Rahul Kumar">
+      <label for="recipientId">Demo ID</label>
+      <input id="recipientId" maxlength="60" placeholder="rahul@demo">
+      <label for="sendAmount">Amount (₹)</label>
+      <input id="sendAmount" type="number" min="1" max="5000"
+        step="0.01" inputmode="decimal" placeholder="Enter amount">
+      <button class="btn" onclick="sendMoney()">Review demo payment</button>
+      <p class="muted">Only a local simulated transaction will be recorded.</p>
+    </div>
+  </section>
+
+  <!-- RECEIVE -->
+  <section class="page" id="receive">
+    <div class="card qrwrap">
+      <h3>↙ Receive demo money</h3>
+      <p>Share your demo ID with another person testing this app.</p>
+      <strong id="receiveId">paynova@demo</strong>
+      <div id="receiveQR"></div>
+      <p class="muted">Demo QR only. It cannot receive actual UPI payments.</p>
+      <button class="btn" onclick="copyDemoId()">Copy demo ID</button>
+    </div>
+  </section>
+
+  <!-- QR -->
+  <section class="page" id="qr">
+    <div class="card qrwrap">
+      <h3>▦ My demo QR code</h3>
+      <p class="muted">This QR contains your demo profile ID only.</p>
+      <div id="qr"></div>
+      <div id="qrId" style="font-weight:750"></div>
+      <button class="btn" onclick="copyDemoId()">Copy demo ID</button>
+      <button class="btn secondary" onclick="downloadQR()">Save QR image</button>
+      <p class="muted">QR creation requires an internet connection to load the QR library.</p>
+    </div>
+  </section>
+
+  <!-- RECHARGE -->
+  <section class="page" id="recharge">
+    <div class="card">
+      <h3>▤ Mobile recharge demo</h3>
+      <label for="mobile">Sample mobile number</label>
+      <input id="mobile" inputmode="numeric" maxlength="10"
+        placeholder="10-digit number">
+      <label for="operator">Operator</label>
+      <select id="operator">
+        <option value="Jio">Jio · Demo</option>
+        <option value="Airtel">Airtel · Demo</option>
+        <option value="Vi">Vi · Demo</option>
+        <option value="BSNL">BSNL · Demo</option>
+      </select>
+      <label for="plan">Sample plan</label>
+      <select id="plan">
+        <option value="149">₹149 · Sample plan</option>
+        <option value="199">₹199 · Sample plan</option>
+        <option value="299">₹299 · Sample plan</option>
+      </select>
+      <button class="btn" onclick="recharge()">Simulate recharge</button>
+      <p class="muted">These aren't actual operator offers or recharges.</p>
+    </div>
+  </section>
+
+  <!-- ADD DEMO BALANCE -->
+  <section class="page" id="add">
+    <div class="card">
+      <h3>＋ Add demo money</h3>
+      <label for="addAmount">Amount (₹)</label>
+      <input id="addAmount" type="number" min="1" max="5000"
+        step="0.01" inputmode="decimal" placeholder="Enter amount">
+      <button class="btn" onclick="addMoney()">Add to demo wallet</button>
+      <p class="muted">This changes only the test balance on this device.</p>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="page" id="history">
+    <div class="card">
+      <h3>Transaction history</h3>
+      <div id="allTransactions"></div>
+      <button class="btn secondary" onclick="clearHistory()">Clear history</button>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+  <section class="page" id="profile">
+    <div class="card">
+      <h3 style="text-align:center">My profile</h3>
+      <img id="avatar" class="avatar" alt="Profile photo"
+        style="display:none">
+      <div id="avatarPlaceholder" class="avatar">👤</div>
+      <div class="profile-name" id="profileNameDisplay">PayNova User</div>
+      <div class="profile-id" id="profileIdDisplay">paynova@demo</div>
+
+      <label for="profileName">Display name</label>
+      <input id="profileName" maxlength="50" placeholder="Your display name">
+      <label for="profileId">Demo profile ID</label>
+      <input id="profileId" maxlength="30"
+        placeholder="yourname@demo">
+      <label for="photo">Choose profile photo</label>
+      <input id="photo" type="file" accept="image/*">
+      <button class="btn" onclick="saveProfile()">Save profile</button>
+      <button class="btn secondary" onclick="showPage('qr')">View my QR</button>
+      <p class="muted">Your profile is local to this browser.
+        It isn't a verified banking identity or online account.</p>
+    </div>
+
+    <div class="card">
+      <h3>App settings</h3>
+      <p class="muted">PayNova version 2.0 · Demo wallet</p>
+      <button class="btn secondary" onclick="resetApp()">Reset demo app</button>
+    </div>
+  </section>
+
+  <footer>PayNova 2.0 · Independent educational demo</footer>
+</main>
+
+<nav>
+  <button class="selected" data-page="home" onclick="showPage('home')">
+    <span>⌂</span>Home
+  </button>
+  <button data-page="send" onclick="showPage('send')">
+    <span>↗</span>Send
+  </button>
+  <button data-page="qr" onclick="showPage('qr')">
+    <span>▦</span>My QR
+  </button>
+  <button data-page="history" onclick="showPage('history')">
+    <span>◷</span>History
+  </button>
+  <button data-page="profile" onclick="showPage('profile')">
+    <span>☻</span>Profile
+  </button>
+</nav>
+
+<!-- Free QR generation library; internet required for this feature. -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+
+<script>
+const START_BALANCE = 5000;
+const STORAGE = "paynova_demo_v2";
+
+let state = {
+  balance: START_BALANCE,
+  transactions: [],
+  profile: {
+    name: "PayNova User",
+    id: "paynova@demo",
+    photo: ""
+  }
+};
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE));
+    if (saved && typeof saved === "object") {
+      if (Number.isFinite(saved.balance) &&
+          saved.balance >= 0 && saved.balance <= 1000000) {
+        state.balance = saved.balance;
+      }
+      if (Array.isArray(saved.transactions)) {
+        state.transactions = saved.transactions
+          .filter(t => t && typeof t.title === "string" &&
+            typeof t.detail === "string" &&
+            Number.isFinite(t.amount) && t.amount >= 0)
+          .slice(0, 100);
+      }
+      if (saved.profile && typeof saved.profile === "object") {
+        if (typeof saved.profile.name === "string")
+          state.profile.name = saved.profile.name.slice(0, 50);
+        if (typeof saved.profile.id === "string")
+          state.profile.id = saved.profile.id.slice(0, 30);
+        if (typeof saved.profile.photo === "string" &&
+            saved.profile.photo.startsWith("data:image/") &&
+            saved.profile.photo.length < 1500000)
+          state.profile.photo = saved.profile.photo;
+      }
+    }
+  } catch (e) {
+    console.log("Using fresh demo data.");
+  }
+}
+
+function persist() {
+  try {
+    localStorage.setItem(STORAGE, JSON.stringify(state));
+  } catch (e) {
+    alert("Could not save locally. Your browser storage may be full.");
+  }
+}
+
+function fmt(n) {
+  return "₹" + Number(n).toLocaleString("en-IN", {
+    minimumFractionDigits: 2, maximumFractionDigits: 2
+  });
+}
+
+function safe(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;",
+    '"':"&quot;", "'":"&#39;"
+  })[c]);
+}
+
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p =>
+    p.classList.toggle("active", p.id === id));
+
+  document.querySelectorAll("nav button").forEach(b =>
+    b.classList.toggle("selected", b.dataset.page === id));
+
+  if (id === "qr" || id === "receive") makeQR();
+  render();
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+function render() {
+  document.getElementById("balance").textContent = fmt(state.balance);
+
+  const html = state.transactions.map(t => `
+    <div class="tx">
+      <div class="txicon">${t.type === "in" ? "↙" : "↗"}</div>
+      <div class="txinfo">
+        <strong>${safe(t.title)}</strong>
+        <small>${safe(t.detail)} · ${safe(t.time)}</small>
+      </div>
+      <div class="txamt ${t.type === "in" ? "green" : ""}">
+        ${t.type === "in" ? "+" : "−"}${fmt(t.amount)}
+      </div>
+    </div>
+  `).join("");
+
+  document.getElementById("recent").innerHTML =
+    state.transactions.slice(0, 3).map(t => `
+      <div class="tx">
+        <div class="txicon">${t.type === "in" ? "↙" : "↗"}</div>
+        <div class="txinfo">
+          <strong>${safe(t.title)}</strong>
+          <small>${safe(t.detail)} · ${safe(t.time)}</small>
+        </div>
+        <div class="txamt ${t.type === "in" ? "green" : ""}">
+          ${t.type === "in" ? "+" : "−"}${fmt(t.amount)}
+        </div>
+      </div>
+    `).join("") || '<p class="muted">No transactions yet.</p>';
+
+  document.getElementById("allTransactions").innerHTML =
+    html || '<p class="muted">No transactions yet.</p>';
+
+  document.getElementById("profileNameDisplay").textContent =
+    state.profile.name;
+  document.getElementById("profileIdDisplay").textContent =
+    state.profile.id;
+  document.getElementById("receiveId").textContent = state.profile.id;
+  document.getElementById("qrId").textContent = state.profile.id;
+
+  document.getElementById("profileName").value = state.profile.name;
+  document.getElementById("profileId").value = state.profile.id;
+
+  const avatar = document.getElementById("avatar");
+  const placeholder = document.getElementById("avatarPlaceholder");
+  if (state.profile.photo) {
+    avatar.src = state.profile.photo;
+    avatar.style.display = "block";
+    placeholder.style.display = "none";
+  } else {
+    avatar.style.display = "none";
+    placeholder.style.display = "grid";
+  }
+}
+
+function addTransaction(title, detail, amount, type) {
+  state.transactions.unshift({
+    title, detail, amount, type,
+    time: new Date().toLocaleString()
+  });
+  state.transactions = state.transactions.slice(0, 100);
+  persist();
+  render();
+}
+
+function amountFrom(id) {
+  const n = Number(document.getElementById(id).value);
+  if (!Number.isFinite(n) || n < 1 || n > 5000) {
+    alert("Enter an amount from ₹1 to ₹5,000.");
+    return null;
+  }
+  return Math.round(n * 100) / 100;
+}
+
+function sendMoney() {
+  const name = document.getElementById("recipient").value.trim();
+  const id = document.getElementById("recipientId").value.trim();
+  const amount = amountFrom("sendAmount");
+
+  if (!name || !id || amount === null) {
+    if (!name || !id) alert("Enter the recipient name and demo ID.");
+    return;
+  }
+  if (amount > state.balance) {
+    alert("Insufficient demo balance.");
+    return;
+  }
+  if (!confirm("Simulate a payment of " + fmt(amount) +
+      " to " + name + "?")) return;
+
+  state.balance = Math.round((state.balance - amount) * 100) / 100;
+  addTransaction("Sent to " + name, id, amount, "out");
+  alert("Demo payment complete. No real money was transferred.");
+  document.getElementById("recipient").value = "";
+  document.getElementById("recipientId").value = "";
+  document.getElementById("sendAmount").value = "";
+  showPage("home");
+}
+
+function addMoney() {
+  const amount = amountFrom("addAmount");
+  if (amount === null) return;
+  if (state.balance + amount > 1000000) {
+    alert("Demo wallet balance limit reached.");
+    return;
+  }
+  if (!confirm("Add " + fmt(amount) + " in simulated demo money?"))
+    return;
+
+  state.balance = Math.round((state.balance + amount) * 100) / 100;
+  addTransaction("Demo money added", "Simulated top-up", amount, "in");
+  document.getElementById("addAmount").value = "";
+  alert("Demo balance updated. No actual funds were added.");
+  showPage("home");
+}
+
+function recharge() {
+  const mobile = document.getElementById("mobile").value.trim();
+  const operator = document.getElementById("operator").value;
+  const amount = Number(document.getElementById("plan").value);
+
+  if (!/^[0-9]{10}$/.test(mobile)) {
+    alert("Enter a 10-digit sample mobile number.");
+    return;
+  }
+  if (amount > state.balance) {
+    alert("Insufficient demo balance.");
+    return;
+  }
+  if (!confirm("Simulate the " + operator + " recharge of " +
+      fmt(amount) + " for " + mobile + "?")) return;
+
+  state.balance = Math.round((state.balance - amount) * 100) / 100;
+  addTransaction("Demo recharge", operator + " · " + mobile, amount, "out");
+  alert("Demo recharge complete. No actual recharge was performed.");
+  document.getElementById("mobile").value = "";
+  showPage("home");
+}
+
+function saveProfile() {
+  const name = document.getElementById("profileName").value.trim();
+  const id = document.getElementById("profileId").value.trim();
+
+  if (!name) {
+    alert("Enter a display name.");
+    return;
+  }
+  if (!/^[a-zA-Z0-9._-]{3,30}@demo$/.test(id)) {
+    alert("Use a demo ID like yourname@demo (3–30 characters before @demo).");
+    return;
+  }
+
+  state.profile.name = name;
+  state.profile.id = id;
+  persist();
+  render();
+  makeQR();
+  alert("Your local demo profile has been saved.");
+}
